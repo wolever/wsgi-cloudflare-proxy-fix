@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "wsgi-cloudflare-proxy-fix"
-version = "0.1.0"
-description = "Sets REMOTE_ADDR to the correct value when behind Cloudflare, based on the X-Real-IP header, when requests originate from Cloudflare's IP range."
+version = "0.1.1"
+description = "Sets REMOTE_ADDR to the correct value when behind Cloudflare, based on the Cf-Connecting-Ip header, when requests originate from Cloudflare's IP range."
 authors = ["David Wolever <david@wolever.net>"]
 
 [tool.poetry.dependencies]

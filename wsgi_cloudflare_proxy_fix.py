@@ -47,7 +47,7 @@ CLOUDFLARE_IPV6_RANGES = [
 
 class CloudflareProxyFix:
     """Sets REMOTE_ADDR to the correct value when behind Cloudflare, based on
-    the X-Real-IP header, when requests originate from Cloudflare's IP range.
+    the Cf-Connecting-Ip header, when requests originate from Cloudflare's IP range.
 
     Additionally, a ``CF_TRUSTED`` variable is set to ``True`` in the WSGI
     environment if the request originated from Cloudflare's IP range.
@@ -124,11 +124,11 @@ class CloudflareProxyFix:
         # The request originated from Cloudflare's IP range.
         environ["CF_TRUSTED"] = True
 
-        x_real_ip = environ.get("HTTP_X_REAL_IP")
-        if not x_real_ip:
+        cf_connecting_ip = environ.get("HTTP_CF_CONNECTING_IP")
+        if not cf_connecting_ip:
             log.log(
                 self.log_level,
-                f"Request from Cloudflare IP range {remote_addr_str!r} but X-Real-IP not set; "
+                f"Request from Cloudflare IP range {remote_addr_str!r} but Cf-Connecting-Ip not set; "
                 f"skipping Cloudflare proxy fix.",
             )
             return self.app(environ, start_response)
@@ -136,9 +136,9 @@ class CloudflareProxyFix:
         log.log(
             self.log_level,
             f"REMOTE_ADDR {remote_addr_str!r} is in Cloudflare IP range; "
-            f"setting REMOTE_ADDR to X-Real-IP {environ.get('HTTP_X_REAL_IP')!r}.",
+            f"setting REMOTE_ADDR to Cf-Connecting-Ip {cf_connecting_ip!r}.",
         )
-        environ["REMOTE_ADDR"] = x_real_ip
+        environ["REMOTE_ADDR"] = cf_connecting_ip
         environ["wsgi_cloudflare_proxy_fix.orig"] = {
             "REMOTE_ADDR": remote_addr_str,
         }
@@ -168,7 +168,7 @@ class CloudflareProxyFixTest:
             "REMOTE_ADDR": "127.0.0.1"
             "wsgi_cloudflare_proxy_fix.orig": null,
         }
-        $ curl -H 'X-Forwarded-For: 103.31.4.1' -H 'X-Real-ip: 1.2.3.4' http://localhost:5000/debug/cf-test
+        $ curl -H 'X-Forwarded-For: 103.31.4.1' -H 'Cf-Connecting-Ip: 1.2.3.4' http://localhost:5000/debug/cf-test
         {
             "CF_TRUSTED": true,
             "REMOTE_ADDR": "1.2.3.4",

@@ -1,9 +1,9 @@
-``wsgi_cloudflare_proxy_fix``: Safely read Cloudflare's ``X-Real-IP`` header
-============================================================================
+``wsgi_cloudflare_proxy_fix``: Safely read Cloudflare's ``Cf-Connecting-Ip`` header
+===================================================================================
 
 ``wsgi_cloudflare_proxy_fix`` is a WSGI middleware that safely sets the
-``REMOTE_ADDR`` environment variable to the value of the ``X-Real-IP`` header
-for requests originating from Cloudflare.
+``REMOTE_ADDR`` environment variable to the value of the ``Cf-Connecting-Ip``
+header for requests originating from Cloudflare.
 
 In addition, it sets a ``CF_TRUSTED`` environment variable to ``True`` for
 all requests originating from Cloudflare.
@@ -74,7 +74,7 @@ And making a request to the `debug/cf-test` endpoint::
         "REMOTE_ADDR": "127.0.0.1"
         "wsgi_cloudflare_proxy_fix.orig": null,
     }
-    $ curl -H 'X-Forwarded-For: 103.31.4.1' -H 'X-Real-ip: 1.2.3.4' http://localhost:5000/debug/cf-test
+    $ curl -H 'X-Forwarded-For: 103.31.4.1' -H 'Cf-Connecting-Ip: 1.2.3.4' http://localhost:5000/debug/cf-test
     {
         "CF_TRUSTED": true,
         "REMOTE_ADDR": "1.2.3.4",
